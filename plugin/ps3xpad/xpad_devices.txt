@@ -28,10 +28,8 @@
 #
 # Examples (remove the leading '#' and edit to use):
 # VID, PID, NAME, XTYPE
-# Flydigi Direwolf 4 in XInput mode reports the standard Xbox 360 VID/PID.
-# It is also built into this edition as the first-priority device; keeping the
-# line here documents the controller explicitly and is safe because duplicates
-# of built-in entries are ignored by the loader.
+# Supported examples. The Flydigi Direwolf 4 in XInput mode reports the
+# standard Xbox 360 VID/PID; duplicate built-in entries are ignored safely.
 0x045e, 0x028e, Flydigi Direwolf 4 (XInput), XTYPE_XBOX360
 0x054c, 0x05c4, Sony DualShock 4 (CUH-ZCT1), PTYPE_PS4
 0x054c, 0x09cc, Sony DualShock 4 (CUH-ZCT2), PTYPE_PS4

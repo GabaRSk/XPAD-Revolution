@@ -39,7 +39,7 @@
 #define MAX_UNIT_NUM (MAX_XPAD_NUM + MAX_XPADW_NUM)
 #define XPAD_DATA_LEN 14+2 // +2 for count and size fields
 #define XPADW_DATA_LEN 0x13+2
-#define MAX_XPAD_PAYLOAD 64 // Direwolf 4 advertises a 64-byte interrupt-IN packet
+#define MAX_XPAD_PAYLOAD 64 // safe for compatible pads that advertise 64-byte interrupt-IN reports
 #define MAX_XPAD_DATA_LEN (MAX_XPAD_PAYLOAD+2) // +2 for count and size fields
 #define XPAD_OUT_LEN 12 // largest LED/rumble command we send (wireless rumble is 12 bytes)
 #define RINGBUF_SIZE  10
@@ -202,7 +202,7 @@ typedef struct xpad_device {
 // register within the budget. The long tail of legacy arcade sticks, guitars
 // and clones follows and is what gets dropped when the table fills up.
 static XPAD_INFO_t xpad_info[] = {
-	{0x045e, 0x028e, "Xbox 360 / Flydigi Direwolf 2/4 (XInput)"},
+	{0x045e, 0x028e, "Xbox 360 / compatible XInput controller"},
 	{0x046d, 0xc21d, "Logitech Gamepad F310"},
 	{0x046d, 0xc21e, "Logitech Gamepad F510"},
 	{0x046d, 0xc21f, "Logitech Gamepad F710"},
@@ -1023,7 +1023,7 @@ static void devlist_warn(int32_t line_no, const char *reason) {
 
   extra_skipped++;
   m = msg;
-  m = append_str(m, "XPAD: devices.txt line ");
+  m = append_str(m, "XPAD Rev: devices.txt line ");
   m = append_int(m, line_no);
   m = append_str(m, " skipped (");
   m = append_str(m, reason);
@@ -1111,7 +1111,7 @@ static void load_extra_devices(void) {
       // protocol; 8BitDo/GameSir 2.4GHz dongles speak plain wired XInput.
       // treat non-Microsoft VIDs as wired to avoid the classic misconfig
       if (vid != 0x045e) {
-        show_msg((char *)"XPAD: XBOX360W is only for MS receivers, using XBOX360");
+        show_msg((char *)"XPAD Rev: XBOX360W is only for MS receivers, using XBOX360");
         xtype = XTYPE_XBOX360;
       } else {
         xtype = XTYPE_XBOX360W;
@@ -1604,12 +1604,12 @@ static void remap_apply(int32_t id, CellPadData *data, uint8_t extra_buttons) {
       if (remap_config.loaded) {
         remap_config.enabled = remap_config.enabled ? 0 : 1;
         if (remap_config.enabled) {
-          show_msg((char *)"XPAD: remap enabled");
+          show_msg((char *)"XPAD Rev: remap enabled");
         } else {
-          show_msg((char *)"XPAD: remap disabled");
+          show_msg((char *)"XPAD Rev: remap disabled");
         }
       } else {
-        show_msg((char *)"XPAD: no remap profile loaded");
+        show_msg((char *)"XPAD Rev: no remap profile loaded");
       }
     }
     if (remap_config.loaded) {
@@ -2372,10 +2372,10 @@ static void report_game_ready(int32_t hook_count, uint32_t process_id,
       now - game_ready_last_notice < 2000000ULL) return;
   game_ready_last_notice = now;
   if (hook_count >= 4) {
-    show_msg((char *)"XPAD: Bluetooth game plugin active");
+    show_msg((char *)"XPAD Rev: game module active");
     xlog(source);
   } else {
-    show_msg((char *)"XPAD: game plugin loaded with hook error");
+    show_msg((char *)"XPAD Rev: game module loaded with hook error");
     xlog_code(source, hook_count);
   }
 }
@@ -2447,7 +2447,7 @@ static void drain_rumble_queue(void) {
 #define GAME_LOADER_HOLD_USEC     800000ULL
 #define GAME_LOADER_HANG_USEC   15000000ULL
 
-/* Reliable path for controllers owned by PS3xPAD (Direwolf/XInput and
+/* Reliable path for controllers owned by XPAD Revolution (XInput and
    DS4/DualSense over USB). remap_apply() calls this with the physical,
    normalized state before remapping. It only publishes a tiny request flag;
    process discovery and LOAD_PROC_MODULE remain outside xpad_mutex. */
@@ -2589,7 +2589,7 @@ static void manual_game_loader_thread(uint64_t arg) {
     xlog_code("manual loader: selected process disappeared or changed", r);
     game_loader_attempted_pid = 0;
     game_loader_inflight = 0;
-    show_msg((char *)"XPAD: game process disappeared; try again");
+    show_msg((char *)"XPAD Rev: game process disappeared; try again");
     sys_ppu_thread_exit(0);
     return;
   }
@@ -2602,7 +2602,7 @@ static void manual_game_loader_thread(uint64_t arg) {
   if (r < 0) {
     game_loader_attempted_pid = 0;
     xlog_code("manual loader: load_module failed", r);
-    loader_show_error("XPAD: game module load failed", r);
+    loader_show_error("XPAD Rev: game module load failed", r);
   } else {
     xlog_proc("manual loader: LOAD_PROC_MODULE returned OK for", name, pid);
     /* Final success is announced only by xpad_game's ready marker/IPC after
@@ -2619,28 +2619,28 @@ static void request_manual_game_load(void) {
   int32_t r;
 
   if (game_loader_inflight) {
-    show_msg((char *)"XPAD: game module load already in progress");
+    show_msg((char *)"XPAD Rev: game module load already in progress");
     return;
   }
   pid = loader_find_game_process(name);
   if (pid == 0) {
-    show_msg((char *)"XPAD: no running game process found");
+    show_msg((char *)"XPAD Rev: no running game process found");
     xlog("manual loader: hotkey pressed but no EBOOT process was found");
     return;
   }
   if (game_loader_active_pid == pid) {
-    show_msg((char *)"XPAD: Bluetooth game plugin already active");
+    show_msg((char *)"XPAD Rev: game module already active");
     return;
   }
   if (game_loader_attempted_pid == pid) {
-    show_msg((char *)"XPAD: game module was already requested");
+    show_msg((char *)"XPAD Rev: game module was already requested");
     return;
   }
 
   game_loader_attempted_pid = pid;
   game_loader_inflight = 1;
   game_loader_hang_logged = 0;
-  show_msg((char *)"XPAD: loading Bluetooth game plugin...");
+  show_msg((char *)"XPAD Rev: loading game module...");
   r = sys_ppu_thread_create(&loader_thread, manual_game_loader_thread,
                             (uint64_t)pid, 1000, 0x4000,
                             0,
@@ -2649,7 +2649,7 @@ static void request_manual_game_load(void) {
     game_loader_inflight = 0;
     game_loader_attempted_pid = 0;
     xlog_code("manual loader: thread create failed", r);
-    loader_show_error("XPAD: loader thread failed", r);
+    loader_show_error("XPAD Rev: loader thread failed", r);
   }
 }
 
@@ -3070,7 +3070,7 @@ static void notify_pad_connected(XPAD_UNIT_t *unit) {
   char msg[96], *m;
 
   m = msg;
-  m = append_str(m, "XPAD: ");
+  m = append_str(m, "XPAD Rev: ");
   m = append_str(m, unit->name ? unit->name : "Controller");
   m = append_str(m, " (");
   m = append_hex16(m, unit->vid);
@@ -3088,7 +3088,7 @@ static void notify_pad_disconnected(XPAD_UNIT_t *unit) {
   char msg[96], *m;
 
   m = msg;
-  m = append_str(m, "XPAD: ");
+  m = append_str(m, "XPAD Rev: ");
   m = append_str(m, unit->name ? unit->name : "Controller");
   m = append_str(m, " disconnected");
   show_msg(msg);
@@ -3252,8 +3252,8 @@ static int32_t xpad_attach(int32_t dev_id) {
   } else {
     /* Never invent an OUT address by mutating the IN descriptor. Continue in
        input-only mode when a device genuinely exposes no interrupt OUT pipe.
-       Direwolf 2 and Direwolf 4 both advertise their real OUT endpoints, so
-       descriptor discovery selects 0x02 and 0x05 respectively. */
+       compatible devices advertise their real OUT endpoint, so descriptor
+       discovery selects the correct address instead of assuming one. */
     xlog("attach: no interrupt-OUT endpoint; continuing input-only");
   }
 
@@ -3263,7 +3263,7 @@ static int32_t xpad_attach(int32_t dev_id) {
   if (register_ldd_controller(unit) != CELL_PAD_OK) {
     unblock(xpad_mutex);
     unit_release(unit);
-    show_msg((char *)"XPAD: no free pad slot for new controller");
+    show_msg((char *)"XPAD Rev: no free pad slot for new controller");
     return(CELL_USBD_ATTACH_FAILED);
   }
   unblock(xpad_mutex);
@@ -3582,7 +3582,7 @@ static int32_t pspad_attach(int32_t dev_id) {
   if (register_ldd_controller(unit) != CELL_PAD_OK) {
     unblock(xpad_mutex);
     unit_release(unit);
-    show_msg((char *)"XPAD: no free pad slot for Sony controller");
+    show_msg((char *)"XPAD Rev: no free pad slot for Sony controller");
     return(CELL_USBD_ATTACH_FAILED);
   }
   unblock(xpad_mutex);
@@ -3883,7 +3883,7 @@ static int xpadw_attach(int32_t dev_id) {
   }
   rname = find_device_name(idVendor, idProduct);
   m = msg;
-  m = append_str(m, "XPAD: ");
+  m = append_str(m, "XPAD Rev: ");
   m = append_str(m, rname ? rname : "Wireless receiver");
   m = append_str(m, " (");
   m = append_hex16(m, idVendor);
@@ -3917,7 +3917,7 @@ static int32_t xpadw_detach(int32_t dev_id) {
   // Xbox wireless receiver has been unplugged
   // disconnect all virtual controllers associated to it
   r = xpadw_detach_all();
-  show_msg((char *)"XPAD: Wireless receiver disconnected");
+  show_msg((char *)"XPAD Rev: Wireless receiver disconnected");
   return(r);
 }
 
@@ -4076,7 +4076,7 @@ static int32_t xpadw_read_input(XPAD_UNIT_t *unit, void *data) {
       if (register_ldd_controller(unit) == CELL_PAD_OK) {
         notify_pad_connected(unit);
       } else {
-        show_msg((char *)"XPAD: no free pad slot for wireless pad");
+        show_msg((char *)"XPAD Rev: no free pad slot for wireless pad");
       }
     }
   } else if (pending < 0) {
@@ -4394,7 +4394,7 @@ static void xpadd_thread(uint64_t arg) {
     // that does nothing
     char msg[96], *m;
     m = msg;
-    m = append_str(m, "XPAD: USB init failed (0x");
+    m = append_str(m, "XPAD Rev: USB init failed (0x");
     m = append_hex32(m, (uint32_t)r);
     if (reg_fail_vid != 0 || reg_fail_pid != 0) {
       m = append_str(m, " at ");
@@ -4407,12 +4407,12 @@ static void xpadd_thread(uint64_t arg) {
     sys_ppu_thread_exit(0);
     return;
   }
-  show_msg((char *)"XPAD v4.0.5 Loaded!");
+  show_msg((char *)"XPAD Rev v1.0.0 Loaded!");
   xlog_code("USB init OK, entering poll loop; conflicts skipped", reg_conflicts);
   if (extra_count > 0 || extra_skipped > 0) {
     char msg[96], *m;
     m = msg;
-    m = append_str(m, "XPAD: ");
+    m = append_str(m, "XPAD Rev: ");
     m = append_int(m, extra_count);
     m = append_str(m, " custom device(s) loaded");
     if (extra_skipped > 0) {
@@ -4425,19 +4425,19 @@ static void xpadd_thread(uint64_t arg) {
   if (remap_config.loaded) {
     char msg[96], *m;
     m = msg;
-    m = append_str(m, "XPAD: remap profile ");
+    m = append_str(m, "XPAD Rev: remap profile ");
     m = append_int(m, remap_config.profile);
     m = append_str(m, remap_config.enabled ? " enabled (" : " ready, disabled (");
     m = append_int(m, remap_config.rules);
     m = append_str(m, " rule(s))");
     show_msg(msg);
   } else if (remap_config.profile > 0) {
-    show_msg((char *)"XPAD: selected remap profile has no valid rules");
+    show_msg((char *)"XPAD Rev: selected remap profile has no valid rules");
   }
   if (analog_config.enabled) {
     char msg[80], *m;
     m = msg;
-    m = append_str(m, "XPAD: analog DS3 curve enabled (");
+    m = append_str(m, "XPAD Rev: analog DS3 curve enabled (");
     m = append_int(m, analog_config.saturation);
     m = append_str(m, "% saturation)");
     show_msg(msg);
@@ -4448,7 +4448,7 @@ static void xpadd_thread(uint64_t arg) {
   xlog("HEN-safe VSH remapper active; no DEX/game-process hook is used");
 #endif
 #if XPAD_MANUAL_GAME_LOADER
-  xlog("manual game loader v4.0.5 armed: normalized USB + libpad BT, hold SELECT+L3+R3 for 0.8s");
+  xlog("XPAD Revolution v1.0.0 manual game loader armed: normalized USB + libpad BT, hold SELECT+L3+R3 for 0.8s");
 #endif
   if (sys_ppu_thread_create(&viewer_thread_id, viewer_network_thread, NULL, 1000,
                             0x10000, SYS_PPU_THREAD_CREATE_JOINABLE,

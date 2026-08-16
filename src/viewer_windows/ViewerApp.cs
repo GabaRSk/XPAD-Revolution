@@ -12,12 +12,12 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-[assembly: AssemblyTitle("PS3xPAD Viewer")]
-[assembly: AssemblyDescription("Viewer UDP/HTTP e controle Xbox 360 virtual para o plugin PS3xPAD")]
-[assembly: AssemblyProduct("PS3xPAD Viewer")]
-[assembly: AssemblyCompany("PS3xPAD Community Build")]
-[assembly: AssemblyVersion("4.0.0.0")]
-[assembly: AssemblyFileVersion("4.0.0.0")]
+[assembly: AssemblyTitle("XPAD Revolution Viewer")]
+[assembly: AssemblyDescription("Viewer UDP/HTTP e controle Xbox 360 virtual para o XPAD Revolution")]
+[assembly: AssemblyProduct("XPAD Revolution")]
+[assembly: AssemblyCompany("XPAD Revolution Community")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
 
 namespace PS3xPADViewer
 {
@@ -489,14 +489,14 @@ namespace PS3xPADViewer
         public MainForm(bool background)
         {
             backgroundStart = background;
-            Text = "PS3xPAD Viewer";
+            Text = "XPAD Revolution Viewer";
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(720, 310);
             MinimumSize = new Size(740, 349);
             Font = new Font("Segoe UI", 9F);
 
             Label title = new Label();
-            title.Text = "PS3xPAD Viewer para Windows";
+            title.Text = "XPAD Revolution Viewer para Windows";
             title.Font = new Font("Segoe UI Semibold", 16F, FontStyle.Bold);
             title.AutoSize = true;
             title.Location = new Point(22, 18);
@@ -519,7 +519,7 @@ namespace PS3xPADViewer
             Controls.Add(statusLabel);
 
             Button open = new Button();
-            open.Text = "Viewer PS3xPAD";
+            open.Text = "Viewer XPAD Revolution";
             open.Location = new Point(25, 172);
             open.Size = new Size(150, 38);
             open.Click += delegate { OpenViewer(); };
@@ -555,14 +555,14 @@ namespace PS3xPADViewer
             Controls.Add(note);
 
             ContextMenuStrip menu = new ContextMenuStrip();
-            menu.Items.Add("Abrir viewer PS3xPAD", null, delegate { OpenViewer(); });
+            menu.Items.Add("Abrir viewer XPAD Revolution", null, delegate { OpenViewer(); });
             menu.Items.Add("Abrir Gamepad Viewer padrão", null, delegate { OpenStandardViewer(); });
             menu.Items.Add("Mostrar janela", null, delegate { ShowWindow(); });
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add("Parar e sair", null, delegate { ExitApplication(); });
             tray = new NotifyIcon();
             tray.Icon = SystemIcons.Application;
-            tray.Text = "PS3xPAD Viewer";
+            tray.Text = "XPAD Revolution";
             tray.ContextMenuStrip = menu;
             tray.Visible = true;
             tray.DoubleClick += delegate { ShowWindow(); };
@@ -594,7 +594,7 @@ namespace PS3xPADViewer
             catch (Exception ex)
             {
                 MessageBox.Show("Não foi possível iniciar o viewer. Verifique se as portas UDP 39000 e HTTP 8765 já estão sendo usadas.\r\n\r\n" + ex.Message,
-                    "PS3xPAD Viewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "XPAD Revolution", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 ExitApplication();
             }
         }
@@ -635,7 +635,7 @@ namespace PS3xPADViewer
                 if (!trayHintShown)
                 {
                     trayHintShown = true;
-                    tray.ShowBalloonTip(2500, "PS3xPAD Viewer", "O viewer continua ativo. Use o ícone ao lado do relógio para abrir ou sair.", ToolTipIcon.Info);
+                    tray.ShowBalloonTip(2500, "XPAD Revolution", "O viewer continua ativo. Use o ícone ao lado do relógio para abrir ou sair.", ToolTipIcon.Info);
                 }
             }
         }
@@ -660,7 +660,7 @@ namespace PS3xPADViewer
         private static void Main(string[] args)
         {
             bool created;
-            singleInstance = new Mutex(true, "Local\\PS3xPADViewer_8C63224D", out created);
+            singleInstance = new Mutex(true, "Local\\XPADRevolutionViewer_8C63224D", out created);
             if (!created)
             {
                 try

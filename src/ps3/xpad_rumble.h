@@ -43,7 +43,7 @@ typedef struct xpad_game_ready_file {
   uint32_t process_id;
 } XPAD_GAME_READY_FILE_t;
 
-/* Size written by v4.0.2. The VSH reader accepts it so replacing the two
+/* Size written by the legacy companion. The VSH reader accepts it so replacing the two
    modules in either order cannot turn an old ready marker into an error. */
 #define XPAD_GAME_READY_V1_SIZE 8U
 

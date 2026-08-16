@@ -33,16 +33,16 @@ try {
         /win32manifest:ViewerApp.manifest `
         /reference:System.dll /reference:System.Core.dll `
         /reference:System.Drawing.dll /reference:System.Windows.Forms.dll `
-        /out:build\PS3xPADViewer.exe ViewerApp.cs VirtualGamepad.cs
-    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar PS3xPADViewer.exe.' }
+        /out:build\XPADRevolutionViewer.exe ViewerApp.cs VirtualGamepad.cs
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar XPADRevolutionViewer.exe.' }
 
     $compilerArgs = @(
         '/nologo', '/target:winexe', '/optimize+', '/platform:anycpu',
         '/win32manifest:Installer.manifest',
         '/reference:System.dll', '/reference:System.Core.dll',
         '/reference:System.Drawing.dll', '/reference:System.Windows.Forms.dll',
-        '/out:build\Instalar_PS3xPAD_Viewer.exe',
-        '/resource:build\PS3xPADViewer.exe,Payload.PS3xPADViewer.exe',
+        '/out:build\Instalar_XPAD_Revolution.exe',
+        '/resource:build\XPADRevolutionViewer.exe,Payload.XPADRevolutionViewer.exe',
         '/resource:build\payload\Nefarius.ViGEm.Client.dll,Payload.Nefarius.ViGEm.Client.dll',
         '/resource:build\payload\ViGEmBus_1.22.0_x64_x86_arm64.exe,Payload.ViGEmBus_1.22.0_x64_x86_arm64.exe',
         '/resource:build\payload\overlay.html,Payload.overlay.html',
@@ -64,10 +64,10 @@ try {
     }
     $compilerArgs += 'Installer.cs'
     & $csc @compilerArgs
-    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar Instalar_PS3xPAD_Viewer.exe.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar Instalar_XPAD_Revolution.exe.' }
 }
 finally {
     Pop-Location
 }
 
-Get-Item (Join-Path $build 'PS3xPADViewer.exe'), (Join-Path $build 'Instalar_PS3xPAD_Viewer.exe')
+Get-Item (Join-Path $build 'XPADRevolutionViewer.exe'), (Join-Path $build 'Instalar_XPAD_Revolution.exe')

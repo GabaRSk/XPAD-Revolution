@@ -1,4 +1,4 @@
-# PS3xPAD v4.0 - curva de analogico estilo DualShock 3
+# XPAD Revolution v1.0.0 - curva de analogico estilo DualShock 3
 # Reinicie o plugin/console depois de alterar este arquivo.
 
 # 1 = ativa a correcao. 0 = entrega os valores crus.

@@ -1,4 +1,4 @@
-# PS3xPAD HEN-safe remapper
+# XPAD Revolution v1.0.0 - HEN-safe remapper
 # Install as: /dev_hdd0/plugins/ps3xpad/xpad_remap.txt
 # Changes are read only when the plugin starts. Restart the HEN/plugin after
 # editing this file.

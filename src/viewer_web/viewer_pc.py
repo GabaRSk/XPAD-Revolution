@@ -186,7 +186,7 @@ class ViewerHTTPServer(ThreadingHTTPServer):
 
 def main():
     import argparse
-    ap = argparse.ArgumentParser(description='PS3xPAD Viewer PC')
+    ap = argparse.ArgumentParser(description='XPAD Revolution Viewer PC')
     ap.add_argument('--demo', action='store_true', help='gera input de demonstracao sem PS3')
     ap.add_argument('--no-browser', action='store_true', help='nao abre o navegador automaticamente')
     args = ap.parse_args()

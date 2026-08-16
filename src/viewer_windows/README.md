@@ -1,6 +1,6 @@
-# Windows viewer source
+# XPAD Revolution Windows viewer source
 
-`ViewerApp.cs` receives PS3xPAD UDP telemetry, serves the local overlay and optionally mirrors Pad 1 to a virtual Xbox 360 controller. `Installer.cs` builds the elevated offline wrapper that installs the viewer, adds the UDP firewall rule and launches the official ViGEmBus installer when selected.
+`ViewerApp.cs` receives XPAD Revolution UDP telemetry, serves the local overlay and optionally mirrors Pad 1 to a virtual Xbox 360 controller. `Installer.cs` builds the elevated offline wrapper that installs the viewer, adds the UDP firewall rule and launches the official ViGEmBus installer when selected.
 
 Build example from PowerShell:
 

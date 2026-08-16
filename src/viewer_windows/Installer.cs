@@ -10,12 +10,12 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-[assembly: AssemblyTitle("PS3xPAD Viewer Installer")]
-[assembly: AssemblyDescription("Instalador do PS3xPAD Viewer e controle virtual para Windows")]
-[assembly: AssemblyProduct("PS3xPAD Viewer")]
-[assembly: AssemblyCompany("PS3xPAD Community Build")]
-[assembly: AssemblyVersion("4.0.0.0")]
-[assembly: AssemblyFileVersion("4.0.0.0")]
+[assembly: AssemblyTitle("XPAD Revolution Installer")]
+[assembly: AssemblyDescription("Instalador do XPAD Revolution Viewer e controle virtual para Windows")]
+[assembly: AssemblyProduct("XPAD Revolution")]
+[assembly: AssemblyCompany("XPAD Revolution Community")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
 
 namespace PS3xPADViewerInstaller
 {
@@ -32,17 +32,19 @@ namespace PS3xPADViewerInstaller
 
     internal static class InstallCore
     {
-        public const string ProductName = "PS3xPAD Viewer";
-        public const string Version = "4.0";
-        public const string FirewallRule = "PS3xPAD Viewer UDP 39000";
-        public const string UninstallKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PS3xPADViewer";
+        public const string ProductName = "XPAD Revolution";
+        public const string Version = "1.0.0";
+        public const string FirewallRule = "XPAD Revolution Viewer UDP 39000";
+        public const string UninstallKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\XPADRevolution";
+        private const string LegacyFirewallRule = "PS3xPAD Viewer UDP 39000";
+        private const string LegacyUninstallKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PS3xPADViewer";
         private const string ClientSha256 = "4458301000B732D115521E99F9936F4EDB70D6CEB3036EF158715E0E6B8902E0";
         private const string DriverSha256 = "89220A7865076B342892F98865F3499FB7C4CFD673159E89D352C360FD014C6A";
         private const string DriverResource = "Payload.ViGEmBus_1.22.0_x64_x86_arm64.exe";
 
         private static readonly PayloadFile[] Payload = new PayloadFile[]
         {
-            new PayloadFile("Payload.PS3xPADViewer.exe", "PS3xPADViewer.exe"),
+            new PayloadFile("Payload.XPADRevolutionViewer.exe", "XPADRevolutionViewer.exe"),
             new PayloadFile("Payload.Nefarius.ViGEm.Client.dll", "Nefarius.ViGEm.Client.dll"),
             new PayloadFile("Payload.overlay.html", "overlay.html"),
             new PayloadFile("Payload.TESTAR_OVERLAY.html", "TESTAR_OVERLAY.html"),
@@ -72,15 +74,16 @@ namespace PS3xPADViewerInstaller
 
         public static string InstallDirectory
         {
-            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "PS3xPAD Viewer"); }
+            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "XPAD Revolution"); }
         }
 
-        public static string ViewerPath { get { return Path.Combine(InstallDirectory, "PS3xPADViewer.exe"); } }
+        public static string ViewerPath { get { return Path.Combine(InstallDirectory, "XPADRevolutionViewer.exe"); } }
         public static string UninstallerPath { get { return Path.Combine(InstallDirectory, "Uninstall.exe"); } }
 
         public static string Install(bool desktopShortcut, bool autoStart, bool virtualController)
         {
             KillViewer();
+            RemoveLegacyRegistration();
             Directory.CreateDirectory(InstallDirectory);
             Assembly assembly = Assembly.GetExecutingAssembly();
             for (int i = 0; i < Payload.Length; i++)
@@ -106,7 +109,7 @@ namespace PS3xPADViewerInstaller
             string virtualLog = virtualController ?
                 (String.IsNullOrEmpty(virtualWarning) ? "instalado" : virtualWarning) : "não selecionado";
             File.WriteAllText(Path.Combine(InstallDirectory, "install.log"),
-                "PS3xPAD Viewer " + Version + "\r\nInstalado em: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") +
+                "XPAD Revolution " + Version + "\r\nInstalado em: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") +
                 "\r\nFirewall: UDP 39000, perfil privado, rede local\r\nDescoberta automatica: UDP 39001 de saida\r\nHTTP 8765: somente 127.0.0.1\r\n" +
                 "Controle virtual: " + virtualLog + "\r\n");
             return virtualWarning;
@@ -223,20 +226,20 @@ namespace PS3xPADViewerInstaller
 
         private static void CreateProgramShortcuts()
         {
-            ExtractShortcut(Path.Combine(StartMenuDirectory, "PS3xPAD Viewer.lnk"), ViewerPath, "");
-            ExtractShortcut(Path.Combine(StartMenuDirectory, "Desinstalar PS3xPAD Viewer.lnk"), UninstallerPath, "/uninstall");
+            ExtractShortcut(Path.Combine(StartMenuDirectory, "XPAD Revolution.lnk"), ViewerPath, "");
+            ExtractShortcut(Path.Combine(StartMenuDirectory, "Desinstalar XPAD Revolution.lnk"), UninstallerPath, "/uninstall");
         }
 
         private static void SetDesktopShortcut(bool enabled)
         {
-            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory), "PS3xPAD Viewer.lnk");
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory), "XPAD Revolution.lnk");
             if (enabled) ExtractShortcut(path, ViewerPath, "");
             else TryDeleteFile(path);
         }
 
         private static void SetAutoStart(bool enabled)
         {
-            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), "PS3xPAD Viewer.lnk");
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), "XPAD Revolution.lnk");
             if (enabled) ExtractShortcut(path, ViewerPath, "--background");
             else TryDeleteFile(path);
         }
@@ -256,6 +259,7 @@ namespace PS3xPADViewerInstaller
 
         private static void ConfigureFirewall()
         {
+            RunNetsh("advfirewall firewall delete rule name=\"" + LegacyFirewallRule + "\"");
             RunNetsh("advfirewall firewall delete rule name=\"" + FirewallRule + "\"");
             int result = RunNetsh("advfirewall firewall add rule name=\"" + FirewallRule + "\" dir=in action=allow " +
                 "program=\"" + ViewerPath + "\" protocol=UDP localport=39000 profile=private remoteip=localsubnet enable=yes");
@@ -269,7 +273,7 @@ namespace PS3xPADViewerInstaller
                 if (key == null) throw new InvalidOperationException("Não foi possível registrar o desinstalador.");
                 key.SetValue("DisplayName", ProductName);
                 key.SetValue("DisplayVersion", Version);
-                key.SetValue("Publisher", "PS3xPAD Viewer");
+                key.SetValue("Publisher", "XPAD Revolution Community");
                 key.SetValue("InstallLocation", InstallDirectory);
                 key.SetValue("DisplayIcon", ViewerPath);
                 key.SetValue("UninstallString", "\"" + UninstallerPath + "\" /uninstall");
@@ -282,7 +286,13 @@ namespace PS3xPADViewerInstaller
 
         public static void KillViewer()
         {
-            Process[] processes = Process.GetProcessesByName("PS3xPADViewer");
+            KillProcessByName("XPADRevolutionViewer");
+            KillProcessByName("PS3xPADViewer");
+        }
+
+        private static void KillProcessByName(string processName)
+        {
+            Process[] processes = Process.GetProcessesByName(processName);
             for (int i = 0; i < processes.Length; i++)
             {
                 try
@@ -295,12 +305,29 @@ namespace PS3xPADViewerInstaller
             }
         }
 
+        private static void RemoveLegacyRegistration()
+        {
+            string commonDesktop = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory);
+            string startup = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+            string commonPrograms = Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms);
+            RunNetsh("advfirewall firewall delete rule name=\"" + LegacyFirewallRule + "\"");
+            TryDeleteFile(Path.Combine(commonDesktop, "PS3xPAD Viewer.lnk"));
+            TryDeleteFile(Path.Combine(startup, "PS3xPAD Viewer.lnk"));
+            try
+            {
+                string oldMenu = Path.Combine(commonPrograms, "PS3xPAD Viewer");
+                if (Directory.Exists(oldMenu)) Directory.Delete(oldMenu, true);
+            }
+            catch { }
+            try { Registry.LocalMachine.DeleteSubKeyTree(LegacyUninstallKey, false); } catch { }
+        }
+
         public static void Uninstall(string directory)
         {
             KillViewer();
             RunNetsh("advfirewall firewall delete rule name=\"" + FirewallRule + "\"");
-            TryDeleteFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory), "PS3xPAD Viewer.lnk"));
-            TryDeleteFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), "PS3xPAD Viewer.lnk"));
+            TryDeleteFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory), "XPAD Revolution.lnk"));
+            TryDeleteFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), "XPAD Revolution.lnk"));
             try { if (Directory.Exists(StartMenuDirectory)) Directory.Delete(StartMenuDirectory, true); } catch { }
             try { Registry.LocalMachine.DeleteSubKeyTree(UninstallKey, false); } catch { }
             try { if (Directory.Exists(directory)) Directory.Delete(directory, true); } catch (Exception ex) { throw new IOException("Não foi possível remover " + directory + ".", ex); }
@@ -323,7 +350,7 @@ namespace PS3xPADViewerInstaller
 
         public InstallerForm()
         {
-            Text = "Instalar PS3xPAD Viewer";
+            Text = "Instalar XPAD Revolution";
             StartPosition = FormStartPosition.CenterScreen;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -332,7 +359,7 @@ namespace PS3xPADViewerInstaller
             Font = new Font("Segoe UI", 9F);
 
             Label title = new Label();
-            title.Text = "PS3xPAD Viewer " + InstallCore.Version;
+            title.Text = "XPAD Revolution " + InstallCore.Version;
             title.Font = new Font("Segoe UI Semibold", 17F, FontStyle.Bold);
             title.AutoSize = true;
             title.Location = new Point(25, 22);
@@ -420,14 +447,14 @@ namespace PS3xPADViewerInstaller
                 progress.Style = ProgressBarStyle.Continuous;
                 progress.Value = 100;
                 status.Text = "Instalação concluída.";
-                string message = "PS3xPAD Viewer instalado com sucesso.\r\n\r\nA regra UDP 39000 foi criada e o viewer será aberto agora.";
+                string message = "XPAD Revolution instalado com sucesso.\r\n\r\nA regra UDP 39000 foi criada e o viewer será aberto agora.";
                 MessageBoxIcon icon = MessageBoxIcon.Information;
                 if (!String.IsNullOrEmpty(warning))
                 {
                     message += "\r\n\r\nAviso sobre o controle virtual: " + warning;
                     icon = MessageBoxIcon.Warning;
                 }
-                MessageBox.Show(message, "PS3xPAD Viewer", MessageBoxButtons.OK, icon);
+                MessageBox.Show(message, "XPAD Revolution", MessageBoxButtons.OK, icon);
                 ProcessStartInfo info = new ProcessStartInfo(InstallCore.ViewerPath);
                 info.UseShellExecute = true;
                 Process.Start(info);
@@ -439,7 +466,7 @@ namespace PS3xPADViewerInstaller
                 progress.Value = 0;
                 status.Text = "Falha na instalação.";
                 MessageBox.Show("A instalação não foi concluída.\r\n\r\n" + ex.Message,
-                    "PS3xPAD Viewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "XPAD Revolution", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 install.Enabled = true;
                 desktop.Enabled = true;
                 autoStart.Enabled = true;
@@ -475,13 +502,13 @@ namespace PS3xPADViewerInstaller
         private static void BeginUninstall()
         {
             Application.EnableVisualStyles();
-            DialogResult answer = MessageBox.Show("Deseja remover o PS3xPAD Viewer e sua regra de Firewall?\r\n\r\n" +
+            DialogResult answer = MessageBox.Show("Deseja remover o XPAD Revolution e sua regra de Firewall?\r\n\r\n" +
                 "O driver ViGEmBus será mantido, pois outros programas podem utilizá-lo.",
-                "Desinstalar PS3xPAD Viewer", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                "Desinstalar XPAD Revolution", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (answer != DialogResult.Yes) return;
             try
             {
-                string temp = Path.Combine(Path.GetTempPath(), "PS3xPADViewer_Uninstall_" + Guid.NewGuid().ToString("N") + ".exe");
+                string temp = Path.Combine(Path.GetTempPath(), "XPADRevolution_Uninstall_" + Guid.NewGuid().ToString("N") + ".exe");
                 File.Copy(Application.ExecutablePath, temp, true);
                 ProcessStartInfo info = new ProcessStartInfo(temp);
                 info.Arguments = "/uninstall-worker \"" + InstallCore.InstallDirectory + "\" " + Process.GetCurrentProcess().Id;
@@ -491,7 +518,7 @@ namespace PS3xPADViewerInstaller
             catch (Exception ex)
             {
                 MessageBox.Show("Não foi possível iniciar a desinstalação.\r\n\r\n" + ex.Message,
-                    "PS3xPAD Viewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "XPAD Revolution", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -509,14 +536,14 @@ namespace PS3xPADViewerInstaller
                 Thread.Sleep(500);
                 InstallCore.Uninstall(directory);
                 MoveFileEx(Application.ExecutablePath, null, MoveFileDelayUntilReboot);
-                MessageBox.Show("PS3xPAD Viewer removido. A regra de Firewall UDP 39000 também foi excluída.\r\n\r\n" +
+                MessageBox.Show("XPAD Revolution removido. A regra de Firewall UDP 39000 também foi excluída.\r\n\r\n" +
                     "O driver compartilhado ViGEmBus foi mantido.",
-                    "PS3xPAD Viewer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    "XPAD Revolution", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("A desinstalação não foi concluída.\r\n\r\n" + ex.Message,
-                    "PS3xPAD Viewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "XPAD Revolution", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

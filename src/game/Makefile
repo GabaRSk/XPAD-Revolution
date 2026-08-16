@@ -27,7 +27,7 @@ PPU_PRX_STRIPFLAGS += --strip-debug --strip-section-header
 # libc.c (shared with the VSH plugin) supplies the small C runtime used under
 # -nodefaultlibs. libio exposes the pad APIs; libfs reads xpad_analog.txt and
 # writes the hook diagnostic log.
-PPU_SRCS = ../src/libc.c xpad_game.c
+PPU_SRCS = ../ps3/libc.c xpad_game.c
 PPU_PRX_LDLIBS = -lio_stub -lfs_stub
 PPU_PRX_TARGET = xpad_game.prx
 

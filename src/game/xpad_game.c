@@ -1,12 +1,12 @@
 /*
- * xpad_game.sprx - game-process companion for PS3xPAD v4.0.5.
+ * xpad_game.sprx - game-process companion for XPAD Revolution v1.0.0.
  *
  * One module now provides both jobs that require visibility inside a game:
  *   1. forward cellPadSetActDirect rumble to the VSH USB driver;
  *   2. correct native DS4/DualSense Bluetooth stick values and selectively
  *      report those generic pads as a conforming standard controller.
  *
- * USB/Direwolf input is already corrected by the VSH half. AUTO mode sees
+ * USB/XInput input is already corrected by the VSH half. AUTO mode sees
  * that virtual pad as LDD/conforming and skips it, preventing a double curve.
  * A genuine DualShock 3 is skipped for the same reason. FORCE remains an
  * explicit escape hatch for unusual firmware/adapters.
@@ -20,8 +20,8 @@
 #include <sys/synchronization.h>
 #include <cell/pad.h>
 #include <cell/cell_fs.h>
-#include "../src/xpad_analog.h"
-#include "../src/xpad_rumble.h"
+#include "../ps3/xpad_analog.h"
+#include "../ps3/xpad_rumble.h"
 
 #define XPAD_ANALOG_PATH "/dev_hdd0/plugins/ps3xpad/xpad_analog.txt"
 #define XPAD_GAME_LOG_PATH "/dev_hdd0/plugins/ps3xpad/xpad_game.log"
@@ -444,7 +444,7 @@ int xpad_game_start(uint64_t arg) {
   int32_t installed_hooks;
   (void)arg;
 
-  game_log("xpad_game v4.0.5 starting", 1);
+  game_log("XPAD Revolution game module v1.0.0 starting", 1);
   memset(&g_original_info, 0, sizeof(g_original_info));
   memset(g_have_last, 0, sizeof(g_have_last));
   g_info_valid = 0;
@@ -468,6 +468,6 @@ int xpad_game_stop(void) {
     sys_mutex_destroy(g_rumble_mutex);
     g_rumble_mutex_ok = 0;
   }
-  game_log("xpad_game v4.0 stopped", 0);
+  game_log("XPAD Revolution game module v1.0.0 stopped", 0);
   return(SYS_PRX_STOP_OK);
 }

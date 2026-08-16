@@ -1,4 +1,4 @@
-PS3xPAD Viewer 4.0 - Third-Party Notices
+XPAD Revolution 1.0.0 - Third-Party Notices
 =========================================
 
 Virtual controller support uses these retired, open-source Nefarius projects:
