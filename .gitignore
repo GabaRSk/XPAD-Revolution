@@ -1,0 +1,31 @@
+# PS3 build outputs
+*.o
+*.d
+*.prx
+*.sprx
+*.sym
+objs/
+build/
+
+# Ready-to-install release modules are intentionally tracked.
+!plugin/ps3xpad/*.sprx
+
+# Proprietary/local build dependencies
+CELL_SDK/
+cell_sdk/
+toolchain/
+scetool/
+scetool.exe
+data/
+
+# Windows build outputs and vendored installers
+src/viewer_windows/dependencies/
+src/viewer_windows/out/
+src/viewer_windows/payload/
+*.pdb
+
+# Local diagnostics
+*.log
+__pycache__/
+.vs/
+.vscode/

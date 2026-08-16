@@ -1,0 +1,5 @@
+OBS Browser Source:
+http://127.0.0.1:8765/?pad=0
+
+Canvas nativo: 806 x 598
+Pode usar outro tamanho; o conjunto inteiro escala junto.

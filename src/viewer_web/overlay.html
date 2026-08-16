@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PS3xPAD Viewer — PSD Exact</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Segoe UI,Arial,sans-serif}
+#viewport{position:relative;width:100vw;height:100vh;overflow:hidden}
+/*
+   IMPORTANT: this is the Photoshop canvas itself.
+   Every child uses the exact x/y and native size stored in the PSD.
+   Only this parent is scaled, so layer alignment can never drift.
+*/
+#canvas{
+  position:absolute;left:50%;top:50%;width:806px;height:598px;
+  transform-origin:center center;
+  transform:translate(-50%,-50%) scale(var(--viewer-scale,1));
+}
+.layer{position:absolute;display:block;pointer-events:none;user-select:none}
+.hidden{visibility:hidden}
+#base{left:0;top:0;width:806px;height:598px}
+#l1{left:109px;top:94px;width:99px;height:23px}
+#l2{left:109px;top:0;width:99px;height:91px}
+#r1{left:598px;top:94px;width:99px;height:23px}
+#r2{left:597px;top:0;width:100px;height:91px}
+#share{left:227px;top:142px;width:28px;height:46px}
+#options{left:551px;top:142px;width:28px;height:46px}
+#leftAnalog{left:227px;top:309px;width:94px;height:94px}
+#rightAnalog{left:484px;top:309px;width:94px;height:94px}
+#l3{left:227px;top:309px;width:94px;height:94px}
+#r3{left:484px;top:309px;width:94px;height:94px}
+#dDown{left:136px;top:256px;width:36px;height:51px}
+#dLeft{left:91px;top:226px;width:51px;height:36px}
+#dRight{left:165px;top:226px;width:52px;height:37px}
+#dUp{left:135px;top:181px;width:37px;height:52px}
+#cross{left:625px;top:274px;width:55px;height:55px}
+#circle{left:680px;top:218px;width:57px;height:54px}
+#square{left:567px;top:217px;width:55px;height:55px}
+#triangle{left:624px;top:159px;width:56px;height:55px}
+#status{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.68);color:white;font-size:12px;white-space:nowrap;opacity:0}
+body.debug #status,body.disconnected #status{opacity:1}
+body.disconnected #canvas{opacity:.38;filter:grayscale(1)}
+</style>
+</head>
+<body class="disconnected">
+<div id="viewport">
+  <div id="canvas">
+    <img id="base" class="layer" src="assets/base.png">
+
+    <img id="l1" class="layer hidden" src="assets/l1_pressed.png">
+    <img id="l2" class="layer hidden" src="assets/l2_pressed.png">
+    <img id="r1" class="layer hidden" src="assets/r1_pressed.png">
+    <img id="r2" class="layer hidden" src="assets/r2_pressed.png">
+    <img id="share" class="layer hidden" src="assets/share_pressed.png">
+    <img id="options" class="layer hidden" src="assets/options_pressed.png">
+
+    <img id="leftAnalog" class="layer" src="assets/left_analog.png">
+    <img id="rightAnalog" class="layer" src="assets/right_analog.png">
+    <img id="l3" class="layer hidden" src="assets/l3_pressed.png">
+    <img id="r3" class="layer hidden" src="assets/r3_pressed.png">
+
+    <img id="dDown" class="layer hidden" src="assets/dpad_down_pressed.png">
+    <img id="dLeft" class="layer hidden" src="assets/dpad_left_pressed.png">
+    <img id="dRight" class="layer hidden" src="assets/dpad_right_pressed.png">
+    <img id="dUp" class="layer hidden" src="assets/dpad_up_pressed.png">
+
+    <img id="cross" class="layer hidden" src="assets/cross_pressed.png">
+    <img id="circle" class="layer hidden" src="assets/circle_pressed.png">
+    <img id="square" class="layer hidden" src="assets/square_pressed.png">
+    <img id="triangle" class="layer hidden" src="assets/triangle_pressed.png">
+  </div>
+  <div id="status">Aguardando PS3xPAD...</div>
+</div>
+<script>
+const PSD_W=806,PSD_H=598;
+function fit(){
+  const scale=Math.min(innerWidth/PSD_W,innerHeight/PSD_H);
+  document.documentElement.style.setProperty('--viewer-scale',String(scale));
+}
+addEventListener('resize',fit);fit();
+
+const q=new URLSearchParams(location.search);
+const pad=Math.max(0,Math.min(6,Number(q.get('pad')||0)||0));
+const demo=q.get('demo')==='1'||location.pathname.toLowerCase().endsWith('testar_overlay.html')||location.protocol==='file:';
+if(q.get('debug')==='1'||demo)document.body.classList.add('debug');
+const M={a:1,b:2,x:4,y:8,lb:16,rb:32,back:64,start:128,l3:256,r3:512,up:1024,down:2048,left:4096,right:8192,guide:16384};
+const $=id=>document.getElementById(id);
+function visible(id,on){$(id).classList.toggle('hidden',!on)}
+function triggerPressure(id,value){
+  const pressure=Math.max(0,Math.min(255,Number(value)||0));
+  const element=$(id);
+  element.classList.toggle('hidden',pressure===0);
+  element.style.opacity=String(pressure/255);
+  return pressure;
+}
+function axis(v){return Math.max(-1,Math.min(1,(Number(v)-128)/127))}
+function stickTransform(x,y){return `translate(${axis(x)*17}px,${axis(y)*17}px)`}
+function render(s){
+  const b=Number(s.buttons)||0;
+  visible('cross',b&M.a);visible('circle',b&M.b);visible('square',b&M.x);visible('triangle',b&M.y);
+  visible('l1',b&M.lb);visible('r1',b&M.rb);
+  visible('share',b&M.back);visible('options',b&M.start);
+  visible('dUp',b&M.up);visible('dDown',b&M.down);visible('dLeft',b&M.left);visible('dRight',b&M.right);
+  const l2Pressure=triggerPressure('l2',s.lt),r2Pressure=triggerPressure('r2',s.rt);
+  visible('l3',b&M.l3);visible('r3',b&M.r3);
+
+  const lt=stickTransform(s.lx,s.ly),rt=stickTransform(s.rx,s.ry);
+  $('leftAnalog').style.transform=lt;$('l3').style.transform=lt;
+  $('rightAnalog').style.transform=rt;$('r3').style.transform=rt;
+
+  const connected=!!s.connected;
+  document.body.classList.toggle('disconnected',!connected);
+  const l2Percent=Math.round(l2Pressure*100/255),r2Percent=Math.round(r2Pressure*100/255);
+  $('status').textContent=connected?`PS3 ${s.ps3_ip||''} • Pad ${pad+1} • L2 ${l2Pressure}/255 (${l2Percent}%) • R2 ${r2Pressure}/255 (${r2Percent}%)`:`Aguardando PS3xPAD • Pad ${pad+1}`;
+}
+render({connected:false,buttons:0,lx:128,ly:128,rx:128,ry:128,lt:0,rt:0});
+
+if(demo){
+  const phases=[
+    {buttons:M.a},{buttons:M.b},{buttons:M.x},{buttons:M.y},
+    {buttons:M.up},{buttons:M.right},{buttons:M.down},{buttons:M.left},
+    {buttons:M.lb},{buttons:M.rb},
+    {lt:32},{lt:96},{lt:160},{lt:224},{lt:255},
+    {rt:32},{rt:96},{rt:160},{rt:224},{rt:255},
+    {buttons:M.back},{buttons:M.start},
+    {lx:40,ly:128},{lx:215,ly:128},{lx:128,ly:40},{lx:128,ly:215},
+    {rx:40,ry:128},{rx:215,ry:128},{rx:128,ry:40},{rx:128,ry:215},
+    {buttons:M.l3|M.r3},{buttons:M.l3|M.r3,lx:80,ly:80,rx:180,ry:180},
+    {buttons:M.a|M.b|M.x|M.y|M.lb|M.rb|M.back|M.start|M.up|M.down|M.left|M.right|M.l3|M.r3,lt:255,rt:255},
+    {}
+  ];
+  let i=0;
+  function tick(){
+    const p=phases[i++%phases.length];
+    render({connected:true,ps3_ip:'DEMO',buttons:0,lx:128,ly:128,rx:128,ry:128,lt:0,rt:0,...p});
+  }
+  tick();setInterval(tick,600);
+}else{
+  const es=new EventSource(`/events?pad=${pad}`);
+  es.onmessage=e=>{try{render(JSON.parse(e.data))}catch(_){}};
+}
+</script>
+</body></html>

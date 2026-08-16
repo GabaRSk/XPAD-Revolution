@@ -1,0 +1,41 @@
+# PS3xPAD v4.0 - curva de analogico estilo DualShock 3
+# Reinicie o plugin/console depois de alterar este arquivo.
+
+# 1 = ativa a correcao. 0 = entrega os valores crus.
+ANALOG_ENABLED = 1
+
+# 80 reproduz aproximadamente o ponto de saturacao de um DualShock 3.
+# 75/71 alcancam os cantos mais cedo; 85 e mais suave; 100 desliga a curva.
+ANALOG_SATURATION = 80
+
+# Zona morta radial em porcentagem. Hall effect sem drift pode usar 0.
+ANALOG_DEADZONE = 4
+
+# AUTO: no xpad_game, corrige somente pad generico nao conforme (DS4/DS5 BT)
+# e ignora DualShock 3 e pads LDD que ja foram corrigidos pelo xpad_vsh.
+# FORCE: corrige as portas selecionadas mesmo se o firmware disser "conforme".
+# OFF: desliga apenas a correcao dentro do jogo; USB continua no xpad_vsh.
+ANALOG_GAME_MODE = AUTO
+
+# Mascara das portas que o xpad_game pode alterar:
+# 1=porta 1, 2=porta 2, 4=porta 3, 8=porta 4; some para varias (3=portas 1+2).
+ANALOG_PORT_MASK = 1
+
+# Faz o DS4/DS5 generico selecionado responder aos jogos como pad padrao com
+# pressao, sensor e vibracao. AUTO nunca falsifica DualShock 3, LDD ou BD Remote.
+ANALOG_SPOOF_PAD_INFO = 1
+
+# Calibracao manual opcional por eixo. Os valores seguros abaixo servem para
+# DS4, DualSense e a maioria dos controles. So altere se mediu min/centro/max.
+ANALOG_LX_MIN = 0
+ANALOG_LX_CENTER = 128
+ANALOG_LX_MAX = 255
+ANALOG_LY_MIN = 0
+ANALOG_LY_CENTER = 128
+ANALOG_LY_MAX = 255
+ANALOG_RX_MIN = 0
+ANALOG_RX_CENTER = 128
+ANALOG_RX_MAX = 255
+ANALOG_RY_MIN = 0
+ANALOG_RY_CENTER = 128
+ANALOG_RY_MAX = 255

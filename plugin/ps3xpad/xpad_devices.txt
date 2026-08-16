@@ -1,0 +1,41 @@
+# Add your custom controller VID/PIDs here, one line per device.
+# Install this file as /dev_hdd0/plugins/ps3xpad/xpad_devices.txt on the PS3.
+#
+# Format: VID, PID, NAME, XTYPE   ('#' starts a comment anywhere)
+# Values are separated by commas; extra spaces around them are fine.
+# A maximum of 24 custom controllers may be registered in addition to the
+# built-in ones. Duplicates of built-in devices are skipped silently, so it
+# is safe to list a pad that turns out to be supported already.
+#
+# XTYPE rules:
+#  - XTYPE_XBOX360   Wired XInput pads AND 2.4GHz USB dongles (8BitDo,
+#                    GameSir, etc.). 2.4GHz dongles present themselves as a
+#                    wired Xbox 360 pad, so one entry covers a pad whose
+#                    wired and dongle modes share the same VID/PID.
+#  - XTYPE_XBOX360W  ONLY the Microsoft Xbox 360 4-pad wireless receiver
+#                    (045e:0291 / 045e:0719). Do NOT use this for
+#                    third-party 2.4GHz dongles - they speak the wired
+#                    protocol; non-Microsoft VIDs marked XBOX360W are
+#                    registered as wired with a warning.
+#  - PTYPE_PS4       DualShock 4 connected directly by USB.
+#  - PTYPE_PS5       DualSense / DualSense Edge connected directly by USB.
+#  - XTYPE_XBOX, XTYPE_XBOXONE, PTYPE_PS3 and PTYPE_BT are recognized but
+#    not implemented yet; such lines are skipped with a notification.
+#
+# To find a controller's VID/PID: plug it into the PS3 - if it is
+# recognized, the notification shows "NAME (VID:PID) on port N". Otherwise
+# check Windows Device Manager (Hardware IDs) or `lsusb` on Linux.
+#
+# Examples (remove the leading '#' and edit to use):
+# VID, PID, NAME, XTYPE
+# Flydigi Direwolf 4 in XInput mode reports the standard Xbox 360 VID/PID.
+# It is also built into this edition as the first-priority device; keeping the
+# line here documents the controller explicitly and is safe because duplicates
+# of built-in entries are ignored by the loader.
+0x045e, 0x028e, Flydigi Direwolf 4 (XInput), XTYPE_XBOX360
+0x054c, 0x05c4, Sony DualShock 4 (CUH-ZCT1), PTYPE_PS4
+0x054c, 0x09cc, Sony DualShock 4 (CUH-ZCT2), PTYPE_PS4
+0x054c, 0x0ce6, Sony DualSense, PTYPE_PS5
+0x054c, 0x0df2, Sony DualSense Edge, PTYPE_PS5
+#0x2dc8, 0x310c, My 8BitDo pad, XTYPE_XBOX360
+#0x3537, 0x1010, My GameSir pad, XTYPE_XBOX360

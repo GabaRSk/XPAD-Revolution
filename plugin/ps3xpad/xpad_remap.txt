@@ -1,0 +1,54 @@
+# PS3xPAD HEN-safe remapper
+# Install as: /dev_hdd0/plugins/ps3xpad/xpad_remap.txt
+# Changes are read only when the plugin starts. Restart the HEN/plugin after
+# editing this file.
+#
+# ACTIVE_PROFILE selects REMAP_SETTING_1 through REMAP_SETTING_10.
+# Set 0 to disable loading a profile.
+ACTIVE_PROFILE = 5
+
+# 0: load the rules but start disabled (safest for the first test).
+# 1: enable the selected profile automatically at plugin startup.
+START_ENABLED = 1
+
+# Syntax: PHYSICAL_SOURCE = VIRTUAL_DESTINATION
+# Example: R1 = R2 means pressing physical R1 sends R2 to the PS3.
+# Reciprocal rules perform a swap.
+
+[REMAP_SETTING_1]
+# Safe first test: START+SELECT+DPAD_RIGHT enables/disables this R1/R2 swap.
+R1 = R2
+R2 = R1
+
+[REMAP_SETTING_2]
+# Swap Cross/A and Circle/B.
+CROSS = CIRCLE
+CIRCLE = CROSS
+
+[REMAP_SETTING_3]
+# Swap complete left and right sticks.
+ANALOG_LEFT_X = ANALOG_RIGHT_X
+ANALOG_LEFT_Y = ANALOG_RIGHT_Y
+ANALOG_RIGHT_X = ANALOG_LEFT_X
+ANALOG_RIGHT_Y = ANALOG_LEFT_Y
+
+[REMAP_SETTING_4]
+# Invert only the vertical axis of the right stick.
+INVERT_ANALOG_RIGHT_Y_AXIS
+
+[REMAP_SETTING_5]
+# DualShock 4 / DualSense USB: clicking the touchpad sends SELECT.
+# Change SELECT to START, CROSS, PS, etc. if desired.
+TOUCHPAD = SELECT
+
+# Supported digital names:
+# CROSS CIRCLE TRIANGLE SQUARE R1 R2 R3 L1 L2 L3
+# DPAD_UP DPAD_LEFT DPAD_DOWN DPAD_RIGHT START SELECT PS TOUCHPAD
+# TOUCHPAD is a physical source only; it cannot be used as a destination.
+#
+# XInput aliases are also accepted:
+# A B X Y LB LT LS RB RT RS BACK GUIDE HOME
+#
+# Supported axes:
+# ANALOG_LEFT_X ANALOG_LEFT_Y ANALOG_RIGHT_X ANALOG_RIGHT_Y
+# Aliases: LX LY RX RY
